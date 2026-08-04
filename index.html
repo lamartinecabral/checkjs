@@ -1038,9 +1038,7 @@
         var passCount = 0;
         var failCount = 0;
 
-        for (var i = 0; i < featureCategories.length; i++) {
-          var category = featureCategories[i];
-
+        asyncForEach(featureCategories, function (next, category) {
           var catHeader = document.createElement("h3");
           catHeader.className = "section-title";
           catHeader.innerText = category.name;
@@ -1048,8 +1046,7 @@
           var grid = document.createElement("div");
           grid.className = "grid";
 
-          for (var j = 0; j < category.tests.length; j++) {
-            var test = category.tests[j];
+          asyncForEach(category.tests, function (next, test) {
             evaluateFeature(test, function (isSupported) {
               totalCount++;
               if (isSupported) {
@@ -1083,17 +1080,19 @@
                 "</span></div>";
   
               grid.appendChild(item);
+              next();
             });
-          }
-
-          container.appendChild(catHeader);
-          container.appendChild(grid);
-        }
-
-        // Update Header Metrics
-        document.getElementById("stat-total").innerText = totalCount;
-        document.getElementById("stat-pass").innerText = passCount;
-        document.getElementById("stat-fail").innerText = failCount;
+          }, function () {
+            container.appendChild(catHeader);
+            container.appendChild(grid);
+            next();
+          });
+        }, function() {
+          // Update Header Metrics
+          document.getElementById("stat-total").innerText = totalCount;
+          document.getElementById("stat-pass").innerText = passCount;
+          document.getElementById("stat-fail").innerText = failCount;
+        });
       }
 
       // Filter by Pass / Fail
@@ -1133,6 +1132,22 @@
 
       // Initial load
       renderApp();
+
+      // Utilities
+      function asyncForEach(list, callback, finalCallback) {
+        var index = 0;
+        function next() {
+          setTimeout(function () {
+            if (index < list.length) {
+              callback(next, list[index], index, list);
+              index++;
+            } else {
+              if (finalCallback) finalCallback();
+            }
+          }, 0);
+        }
+        next();
+      }
     </script>
   </body>
 </html>
