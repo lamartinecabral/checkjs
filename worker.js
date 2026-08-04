@@ -5,15 +5,13 @@ function evaluateWorkerFeature(test, callback) {
       // Dynamic syntax evaluation safely wrapped in try/catch
       eval(test.code);
       return callback(true);
-    } catch (e) {
-      console.log(e);
+    } catch (_) {
       return callback(false);
     }
   } else if (test.type === "api") {
     try {
       return callback(!!test.check());
-    } catch (e) {
-      console.log(e);
+    } catch (_) {
       return callback(false);
     }
   }

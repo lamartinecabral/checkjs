@@ -33,6 +33,13 @@ function moduleEval(jsCode, callback) {
       if (!failed) callback(true);
       else callback(false);
     };
+
+    script.onerror = function (ev) {
+      window.removeEventListener("error", errorListener);
+      script.remove();
+      URL.revokeObjectURL(blobUrl);
+      callback(false);
+    };
   } catch (e) {
     callback(false);
   }

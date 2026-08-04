@@ -439,7 +439,7 @@
               name: "Modules in Workers",
               type: "syntax",
               env: "worker",
-              code: "import('').catch(()=>{});",
+              code: "import 'asd';",
             },
             {
               name: "Optional Chaining (?.)",
@@ -1110,30 +1110,34 @@
 
       // Evaluator engine runner
       function evaluateFeature(test, callback) {
-        if (test.env === "module") {
-          // If the test is marked for ES Modules, use the module evaluator
-          return window.evaluateEsmFeature(test, callback);
-        }
-        if (test.env === "worker") {
-          // If the test is marked for Web Workers, use the worker evaluator
-          return window.evaluateWorkerFeature(test, callback);
-        }
-        if (test.type === "syntax") {
-          try {
-            // Dynamic syntax evaluation safely wrapped in try/catch
-            eval(test.code);
-            return callback(true);
-          } catch (e) {
-            return callback(false);
+        try {
+          if (test.env === "module") {
+            // If the test is marked for ES Modules, use the module evaluator
+            return window.evaluateEsmFeature(test, callback);
           }
-        } else if (test.type === "api") {
-          try {
-            return callback(!!test.check());
-          } catch (e) {
-            return callback(false);
+          if (test.env === "worker") {
+            // If the test is marked for Web Workers, use the worker evaluator
+            return window.evaluateWorkerFeature(test, callback);
           }
+          if (test.type === "syntax") {
+            try {
+              // Dynamic syntax evaluation safely wrapped in try/catch
+              eval(test.code);
+              return callback(true);
+            } catch (e) {
+              return callback(false);
+            }
+          } else if (test.type === "api") {
+            try {
+              return callback(!!test.check());
+            } catch (e) {
+              return callback(false);
+            }
+          }
+          return callback(false);
+        } catch (e) {
+          return callback(false);
         }
-        return callback(false);
       }
 
       // Filter by Pass / Fail
