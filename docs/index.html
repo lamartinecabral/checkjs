@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Feature Compatibility Evaluator</title>
+  <style>
+    /* Clean, modern CSS styling using native CSS features compatible back to IE9+ */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f4f6f8;
+      color: #1f2937;
+      line-height: 1.5;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: #111827;
+    }
+
+    .user-agent {
+      font-size: 13px;
+      color: #6b7280;
+      word-break: break-all;
+      background: #f8fafc;
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+      margin-top: 8px;
+    }
+
+    .stats-bar {
+      display: flex;
+      margin-top: 16px;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 16px;
+    }
+
+    .stat-box {
+      margin-right: 24px;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-pass { color: #059669; }
+    .stat-fail { color: #dc2626; }
+    .stat-total { color: #3b82f6; }
+
+    .card {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: #2563eb;
+    }
+
+    .filter-btn {
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .filter-btn.active {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
+    }
+
+    .custom-tester input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-family: monospace;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .btn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn:hover {
+      background: #1d4ed8;
+    }
+
+    .custom-result {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 12px;
+    }
+
+    .feature-item {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-left: 4px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .feature-item.pass {
+      border-left-color: #10b981;
+    }
+
+    .feature-item.fail {
+      border-left-color: #ef4444;
+    }
+
+    .feature-info {
+      flex: 1;
+      padding-right: 12px;
+    }
+
+    .feature-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1f2937;
+    }
+
+    .feature-type {
+      font-size: 11px;
+      color: #6b7280;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-pass {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    .badge-fail {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+
+    .section-title {
+      font-size: 16px;
+      margin: 20px 0 10px 0;
+      color: #4b5563;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>JavaScript Feature Compatibility Evaluator</h1>
+      <div>Evaluates native APIs, modern methods, and dynamic language syntax in real-time.</div>
+      <div class="user-agent" id="ua-display">User Agent: Detecting...</div>
+
+      <div class="stats-bar">
+        <div class="stat-box">
+          <div class="stat-value stat-total" id="stat-total">0</div>
+          <div class="stat-label">Total Tests</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value stat-pass" id="stat-pass">0</div>
+          <div class="stat-label">Supported</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value stat-fail" id="stat-fail">0</div>
+          <div class="stat-label">Unsupported</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Custom Syntax Tester -->
+    <div class="card custom-tester">
+      <h2>Interactive Syntax Evaluator</h2>
+      <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">
+        Test custom ES syntax dynamically via <code>eval()</code>:
+      </p>
+      <input type="text" id="custom-code-input" value="() => { const { a = 1 } = {}; return a; }" placeholder="e.g. () => {} or [1, 2]?.at(0)" />
+      <button class="btn" onclick="runCustomTest()">Evaluate Syntax</button>
+      <div id="custom-result" class="custom-result"></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="controls">
+      <input type="text" id="search-input" class="search-input" placeholder="Search feature name..." onkeyup="filterResults()" />
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn" onclick="setFilter('pass', this)">Supported</button>
+      <button class="filter-btn" onclick="setFilter('fail', this)">Unsupported</button>
+    </div>
+
+    <!-- Test Results Output Container -->
+    <div id="results-container"></div>
+  </div>
+
+  <script>
+    /* 
+     * NOTE: This script is deliberately written in pure ES3/ES5 JavaScript (var, standard functions) 
+     * so that old engines can execute this code without throwing syntax errors.
+     */
+
+    var currentFilter = 'all';
+
+    // List of test categories and feature declarations
+    var featureCategories = [
+      {
+        name: "Language Syntax & Grammar (Evaluated via eval)",
+        tests: [
+          { name: "Arrow Functions", type: "syntax", code: "() => {}" },
+          { name: "let / const Block Scope", type: "syntax", code: "let x = 1; const y = 2;" },
+          { name: "Template Literals", type: "syntax", code: "`hello ${1+1}`" },
+          { name: "Classes", type: "syntax", code: "class TestFeature {}" },
+          { name: "Destructuring Assignment", type: "syntax", code: "var [a, b] = [1, 2]; var {c} = {c:3};" },
+          { name: "Default Function Parameters", type: "syntax", code: "function test(a, b = 1) {}" },
+          { name: "Rest & Spread Operators", type: "syntax", code: "var a = [1]; var b = [...a]; function f(...args){}" },
+          { name: "Async / Await Syntax", type: "syntax", code: "async function test() { await Promise.resolve(); }" },
+          { name: "Optional Chaining (?.)", type: "syntax", code: "var obj = {}; var val = obj?.a?.b;" },
+          { name: "Nullish Coalescing (??)", type: "syntax", code: "var val = null ?? 'default';" },
+          { name: "Private Class Fields (#field)", type: "syntax", code: "class Foo { #bar = 42; getBar() { return this.#bar; } }" },
+          { name: "Logical Assignment Operators (||=, &&=, ??=)", type: "syntax", code: "let a = 0; a ||= 1; let b = 1; b &&= 2;" },
+        ]
+      },
+      {
+        name: "Global Objects & APIs",
+        tests: [
+          { name: "Promise", type: "api", check: function() { return typeof Promise !== 'undefined'; } },
+          { name: "Fetch API", type: "api", check: function() { return typeof fetch !== 'undefined'; } },
+          { name: "Map & Set", type: "api", check: function() { return typeof Map !== 'undefined' && typeof Set !== 'undefined'; } },
+          { name: "Symbol", type: "api", check: function() { return typeof Symbol !== 'undefined'; } },
+          { name: "Proxy & Reflect", type: "api", check: function() { return typeof Proxy !== 'undefined' && typeof Reflect !== 'undefined'; } },
+          { name: "BigInt", type: "api", check: function() { return typeof BigInt !== 'undefined'; } },
+          { name: "WebAssembly", type: "api", check: function() { return typeof WebAssembly !== 'undefined'; } },
+          { name: "IntersectionObserver", type: "api", check: function() { return typeof IntersectionObserver !== 'undefined'; } },
+          { name: "ResizeObserver", type: "api", check: function() { return typeof ResizeObserver !== 'undefined'; } },
+          { name: "structuredClone", type: "api", check: function() { return typeof structuredClone !== 'undefined'; } },
+          { name: "localStorage", type: "api", check: function() { try { return typeof localStorage !== 'undefined' && localStorage !== null; } catch(e) { return false; } } },
+          { name: "Web Workers", type: "api", check: function() { return typeof Worker !== 'undefined'; } }
+        ]
+      },
+      {
+        name: "Prototype & Helper Methods",
+        tests: [
+          { name: "Object.assign", type: "api", check: function() { return typeof Object.assign === 'function'; } },
+          { name: "Object.entries / values", type: "api", check: function() { return typeof Object.entries === 'function' && typeof Object.values === 'function'; } },
+          { name: "Array.prototype.includes", type: "api", check: function() { return Array.prototype && typeof Array.prototype.includes === 'function'; } },
+          { name: "Array.prototype.flat", type: "api", check: function() { return Array.prototype && typeof Array.prototype.flat === 'function'; } },
+          { name: "Array.prototype.at", type: "api", check: function() { return Array.prototype && typeof Array.prototype.at === 'function'; } },
+          { name: "String.prototype.replaceAll", type: "api", check: function() { return String.prototype && typeof String.prototype.replaceAll === 'function'; } },
+          { name: "Promise.allSettled", type: "api", check: function() { return Promise && typeof Promise.allSettled === 'function'; } },
+          { name: "Promise.any", type: "api", check: function() { return Promise && typeof Promise.any === 'function'; } }
+        ]
+      }
+    ];
+
+    // Evaluator engine runner
+    function evaluateFeature(test) {
+      if (test.type === "syntax") {
+        try {
+          // Dynamic syntax evaluation safely wrapped in try/catch
+          eval(test.code);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      } else if (test.type === "api") {
+        try {
+          return !!test.check();
+        } catch (e) {
+          return false;
+        }
+      }
+      return false;
+    }
+
+    // Run custom syntax input
+    function runCustomTest() {
+      var code = document.getElementById('custom-code-input').value;
+      var resultDiv = document.getElementById('custom-result');
+      
+      try {
+        eval(code);
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'custom-result badge-pass';
+        resultDiv.innerHTML = '<strong>Supported!</strong> Syntax evaluated successfully without errors.';
+      } catch (err) {
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'custom-result badge-fail';
+        resultDiv.innerHTML = '<strong>Unsupported / Syntax Error:</strong> ' + (err.message || err);
+      }
+    }
+
+    // Render features to the page DOM
+    function renderApp() {
+      var uaDiv = document.getElementById('ua-display');
+      uaDiv.innerText = 'User Agent: ' + navigator.userAgent;
+
+      var container = document.getElementById('results-container');
+      container.innerHTML = '';
+
+      var totalCount = 0;
+      var passCount = 0;
+      var failCount = 0;
+
+      for (var i = 0; i < featureCategories.length; i++) {
+        var category = featureCategories[i];
+        
+        var catHeader = document.createElement('h3');
+        catHeader.className = 'section-title';
+        catHeader.innerText = category.name;
+        
+        var grid = document.createElement('div');
+        grid.className = 'grid';
+
+        for (var j = 0; j < category.tests.length; j++) {
+          var test = category.tests[j];
+          var isSupported = evaluateFeature(test);
+
+          totalCount++;
+          if (isSupported) {
+            passCount++;
+          } else {
+            failCount++;
+          }
+
+          var statusClass = isSupported ? 'pass' : 'fail';
+          var badgeText = isSupported ? 'Pass' : 'Fail';
+          var badgeClass = isSupported ? 'badge-pass' : 'badge-fail';
+
+          var item = document.createElement('div');
+          item.className = 'feature-item ' + statusClass;
+          item.setAttribute('data-name', test.name.toLowerCase());
+          item.setAttribute('data-status', statusClass);
+
+          item.innerHTML = 
+            '<div class="feature-info">' +
+              '<div class="feature-name">' + test.name + '</div>' +
+              '<div class="feature-type">' + test.type + '</div>' +
+            '</div>' +
+            '<div><span class="badge ' + badgeClass + '">' + badgeText + '</span></div>';
+
+          grid.appendChild(item);
+        }
+
+        container.appendChild(catHeader);
+        container.appendChild(grid);
+      }
+
+      // Update Header Metrics
+      document.getElementById('stat-total').innerText = totalCount;
+      document.getElementById('stat-pass').innerText = passCount;
+      document.getElementById('stat-fail').innerText = failCount;
+    }
+
+    // Filter by Pass / Fail
+    function setFilter(filterType, btnElement) {
+      currentFilter = filterType;
+      
+      var buttons = document.querySelectorAll('.filter-btn');
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].className = 'filter-btn';
+      }
+      btnElement.className = 'filter-btn active';
+      
+      filterResults();
+    }
+
+    // Filter items by Search Query and Status
+    function filterResults() {
+      var query = document.getElementById('search-input').value.toLowerCase();
+      var items = document.querySelectorAll('.feature-item');
+
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        var name = item.getAttribute('data-name');
+        var status = item.getAttribute('data-status');
+
+        var matchesQuery = name.indexOf(query) !== -1;
+        var matchesStatus = (currentFilter === 'all') || (status === currentFilter);
+
+        if (matchesQuery && matchesStatus) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Initial load
+    renderApp();
+  </script>
+</body>
+</html>
