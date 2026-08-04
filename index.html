@@ -303,52 +303,36 @@
       <div id="results-container"></div>
     </div>
 
-    <script type="module">
-      // Evaluator engine runner for ES Modules
-      window.evaluateEsmFeature = function (test, callback) {
-        if (test.type === "syntax") {
-          try {
-            // Dynamic syntax evaluation safely wrapped in try/catch
-            eval(test.code);
-            return callback(true);
-          } catch (e) {
-            return callback(false);
-          }
-        } else if (test.type === "api") {
-          try {
-            return callback(!!test.check());
-          } catch (e) {
-            return callback(false);
-          }
-        }
-        return callback(false);
-      };
-    </script>
+    <script type="module" src="module.js"></script>
 
     <script>
-      // Evaluator engine runner
-      function evaluateFeature(test, callback) {
-        if (test.env === "module") {
-          // If the test is marked for ES Modules, use the module evaluator
-          return window.evaluateEsmFeature(test, callback);
+      (function () {
+        if (!window.evaluateEsmFeature) {
+          window.evaluateEsmFeature = function (test, callback) {
+            // Fallback for environments that don't support ES Modules
+            callback(false);
+          };
         }
-        if (test.type === "syntax") {
+
+        if (typeof Worker !== "undefined") {
+          var worker;
           try {
-            // Dynamic syntax evaluation safely wrapped in try/catch
-            eval(test.code);
-            return callback(true);
-          } catch (e) {
-            return callback(false);
+            worker = new Worker("worker.js", { type: "module" });
+          } catch(_) {
+            worker = new Worker("worker.js");
           }
-        } else if (test.type === "api") {
-          try {
-            return callback(!!test.check());
-          } catch (e) {
-            return callback(false);
-          }
+          window.evaluateWorkerFeature = function (test, callback) {
+            worker.onmessage = function (e) {
+              callback(e.data.result);
+            };
+            worker.postMessage(test);
+          };
+        } else {
+          window.evaluateWorkerFeature = function (test, callback) {
+            callback(false);
+          };
         }
-        return callback(false);
-      }
+      })();
     </script>
 
     <script>
@@ -470,6 +454,18 @@
               name: "RegExp dotAll Flag",
               type: "syntax",
               code: "var match = /a.b/s.test('a\\nb');",
+            },
+            {
+              name: "import.meta",
+              type: "syntax",
+              env: "module",
+              code: "import.meta",
+            },
+            {
+              name: "Modules in Workers",
+              type: "syntax",
+              env: "worker",
+              code: "import('').catch(()=>{});",
             },
           ],
         },
@@ -1108,6 +1104,34 @@
         );
       }
 
+      // Evaluator engine runner
+      function evaluateFeature(test, callback) {
+        if (test.env === "module") {
+          // If the test is marked for ES Modules, use the module evaluator
+          return window.evaluateEsmFeature(test, callback);
+        }
+        if (test.env === "worker") {
+          // If the test is marked for Web Workers, use the worker evaluator
+          return window.evaluateWorkerFeature(test, callback);
+        }
+        if (test.type === "syntax") {
+          try {
+            // Dynamic syntax evaluation safely wrapped in try/catch
+            eval(test.code);
+            return callback(true);
+          } catch (e) {
+            return callback(false);
+          }
+        } else if (test.type === "api") {
+          try {
+            return callback(!!test.check());
+          } catch (e) {
+            return callback(false);
+          }
+        }
+        return callback(false);
+      }
+
       // Filter by Pass / Fail
       function setFilter(filterType, btnElement) {
         currentFilter = filterType;
@@ -1143,9 +1167,6 @@
         }
       }
 
-      // Initial load
-      renderApp();
-
       // Utilities
       function asyncForEach(list, callback, finalCallback) {
         var index = 0;
@@ -1161,6 +1182,10 @@
         }
         next();
       }
+
+      // Initial load
+      renderApp();
+
     </script>
   </body>
 </html>
