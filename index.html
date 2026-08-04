@@ -436,10 +436,25 @@
               code: "import.meta",
             },
             {
-              name: "Modules in Workers",
+              name: "Top-level await",
               type: "syntax",
-              env: "worker",
-              code: "import 'asd';",
+              env: "module",
+              code: "await Promise.resolve();",
+            },
+            {
+              name: "Private Fields in Operator",
+              type: "syntax",
+              code: "class Foo { #value; has(object) { return #value in object; } }",
+            },
+            {
+              name: "RegExp hasIndices Flag (d)",
+              type: "syntax",
+              code: "var match = /a/d.exec('a'); var indices = match.indices;",
+            },
+            {
+              name: "RegExp Unicode Sets Flag (v)",
+              type: "syntax",
+              code: "var expression = /[\\p{ASCII}&&\\p{Letter}]/v;",
             },
             {
               name: "Optional Chaining (?.)",
@@ -582,6 +597,29 @@
               },
             },
             {
+              name: "AbortSignal.timeout / any",
+              type: "api",
+              check: function () {
+                return (
+                  typeof AbortSignal !== "undefined" &&
+                  typeof AbortSignal.timeout === "function" &&
+                  typeof AbortSignal.any === "function"
+                );
+              },
+            },
+            {
+              name: "Fetch Request / Response / Headers / FormData",
+              type: "api",
+              check: function () {
+                return (
+                  typeof Request !== "undefined" &&
+                  typeof Response !== "undefined" &&
+                  typeof Headers !== "undefined" &&
+                  typeof FormData !== "undefined"
+                );
+              },
+            },
+            {
               name: "TextEncoder & TextDecoder",
               type: "api",
               check: function () {
@@ -704,6 +742,24 @@
               },
             },
             {
+              name: "Canvas 2D",
+              type: "api",
+              check: function () {
+                try {
+                  return !!document.createElement("canvas").getContext("2d");
+                } catch (_) {
+                  return false;
+                }
+              },
+            },
+            {
+              name: "OffscreenCanvas",
+              type: "api",
+              check: function () {
+                return typeof OffscreenCanvas !== "undefined";
+              },
+            },
+            {
               name: "WebRTC",
               type: "api",
               check: function () {
@@ -733,6 +789,84 @@
               type: "api",
               check: function () {
                 return typeof caches !== "undefined";
+              },
+            },
+            {
+              name: "Service Workers",
+              type: "api",
+              check: function () {
+                return (
+                  typeof navigator !== "undefined" &&
+                  typeof navigator.serviceWorker !== "undefined"
+                );
+              },
+            },
+            {
+              name: "Permissions API",
+              type: "api",
+              check: function () {
+                return (
+                  typeof navigator !== "undefined" &&
+                  typeof navigator.permissions !== "undefined" &&
+                  typeof navigator.permissions.query === "function"
+                );
+              },
+            },
+            {
+              name: "Notifications",
+              type: "api",
+              check: function () {
+                return typeof Notification !== "undefined";
+              },
+            },
+            {
+              name: "Geolocation",
+              type: "api",
+              check: function () {
+                return (
+                  typeof navigator !== "undefined" &&
+                  typeof navigator.geolocation !== "undefined"
+                );
+              },
+            },
+            {
+              name: "Media Devices",
+              type: "api",
+              check: function () {
+                return (
+                  typeof navigator !== "undefined" &&
+                  typeof navigator.mediaDevices !== "undefined" &&
+                  typeof navigator.mediaDevices.getUserMedia === "function"
+                );
+              },
+            },
+            {
+              name: "Web Audio",
+              type: "api",
+              check: function () {
+                return (
+                  typeof AudioContext !== "undefined" ||
+                  typeof webkitAudioContext !== "undefined"
+                );
+              },
+            },
+            {
+              name: "WebGPU",
+              type: "api",
+              check: function () {
+                return (
+                  typeof navigator !== "undefined" &&
+                  typeof navigator.gpu !== "undefined"
+                );
+              },
+            },
+            {
+              name: "Secure Context",
+              type: "api",
+              check: function () {
+                return (
+                  typeof isSecureContext !== "undefined" && isSecureContext
+                );
               },
             },
             {
