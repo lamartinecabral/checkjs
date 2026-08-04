@@ -303,6 +303,54 @@
       <div id="results-container"></div>
     </div>
 
+    <script type="module">
+      // Evaluator engine runner for ES Modules
+      window.evaluateEsmFeature = function (test, callback) {
+        if (test.type === "syntax") {
+          try {
+            // Dynamic syntax evaluation safely wrapped in try/catch
+            eval(test.code);
+            return callback(true);
+          } catch (e) {
+            return callback(false);
+          }
+        } else if (test.type === "api") {
+          try {
+            return callback(!!test.check());
+          } catch (e) {
+            return callback(false);
+          }
+        }
+        return callback(false);
+      }
+    </script>
+
+    <script>
+      // Evaluator engine runner
+      function evaluateFeature(test, callback) {
+        if(test.env === 'module') {
+          // If the test is marked for ES Modules, use the module evaluator
+          return window.evaluateEsmFeature(test, callback);
+        }
+        if (test.type === "syntax") {
+          try {
+            // Dynamic syntax evaluation safely wrapped in try/catch
+            eval(test.code);
+            return callback(true);
+          } catch (e) {
+            return callback(false);
+          }
+        } else if (test.type === "api") {
+          try {
+            return callback(!!test.check());
+          } catch (e) {
+            return callback(false);
+          }
+        }
+        return callback(false);
+      }
+    </script>
+
     <script>
       /*
        * NOTE: This script is deliberately written in pure ES3/ES5 JavaScript (var, standard functions)
@@ -958,26 +1006,6 @@
         },
       ];
 
-      // Evaluator engine runner
-      function evaluateFeature(test) {
-        if (test.type === "syntax") {
-          try {
-            // Dynamic syntax evaluation safely wrapped in try/catch
-            eval(test.code);
-            return true;
-          } catch (e) {
-            return false;
-          }
-        } else if (test.type === "api") {
-          try {
-            return !!test.check();
-          } catch (e) {
-            return false;
-          }
-        }
-        return false;
-      }
-
       // Run custom syntax input
       function runCustomTest() {
         var code = document.getElementById("custom-code-input").value;
@@ -1022,40 +1050,40 @@
 
           for (var j = 0; j < category.tests.length; j++) {
             var test = category.tests[j];
-            var isSupported = evaluateFeature(test);
-
-            totalCount++;
-            if (isSupported) {
-              passCount++;
-            } else {
-              failCount++;
-            }
-
-            var statusClass = isSupported ? "pass" : "fail";
-            var badgeText = isSupported ? "Pass" : "Fail";
-            var badgeClass = isSupported ? "badge-pass" : "badge-fail";
-
-            var item = document.createElement("div");
-            item.className = "feature-item " + statusClass;
-            item.setAttribute("data-name", test.name.toLowerCase());
-            item.setAttribute("data-status", statusClass);
-
-            item.innerHTML =
-              '<div class="feature-info">' +
-              '<div class="feature-name">' +
-              test.name +
-              "</div>" +
-              '<div class="feature-type">' +
-              test.type +
-              "</div>" +
-              "</div>" +
-              '<div><span class="badge ' +
-              badgeClass +
-              '">' +
-              badgeText +
-              "</span></div>";
-
-            grid.appendChild(item);
+            evaluateFeature(test, function (isSupported) {
+              totalCount++;
+              if (isSupported) {
+                passCount++;
+              } else {
+                failCount++;
+              }
+  
+              var statusClass = isSupported ? "pass" : "fail";
+              var badgeText = isSupported ? "Pass" : "Fail";
+              var badgeClass = isSupported ? "badge-pass" : "badge-fail";
+  
+              var item = document.createElement("div");
+              item.className = "feature-item " + statusClass;
+              item.setAttribute("data-name", test.name.toLowerCase());
+              item.setAttribute("data-status", statusClass);
+  
+              item.innerHTML =
+                '<div class="feature-info">' +
+                '<div class="feature-name">' +
+                test.name +
+                "</div>" +
+                '<div class="feature-type">' +
+                test.type +
+                "</div>" +
+                "</div>" +
+                '<div><span class="badge ' +
+                badgeClass +
+                '">' +
+                badgeText +
+                "</span></div>";
+  
+              grid.appendChild(item);
+            });
           }
 
           container.appendChild(catHeader);
