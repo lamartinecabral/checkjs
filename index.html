@@ -1326,7 +1326,9 @@
       }
 
       // Initial load
-      renderApp();
+      window.addEventListener("load", function () {
+        renderApp();
+      });
     </script>
   </body>
 </html>
