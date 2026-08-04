@@ -6,9 +6,9 @@ Open the page to see the detected user agent, a pass/fail summary, and individua
 
 ## What It Checks
 
-- Language syntax, including arrow functions, classes, destructuring, async/await, optional chaining, and private class fields
-- Global APIs such as `Promise`, `fetch`, `Map`, `WebAssembly`, observers, `structuredClone`, storage, and Web Workers
-- Built-in helper methods including `Object.assign`, `Array.prototype.includes`, `Array.prototype.at`, `String.prototype.replaceAll`, and Promise helpers
+- Language syntax, including arrow functions, classes, destructuring, async/await, optional chaining, object rest/spread, generators, numeric separators, class static blocks, and modern regular expressions
+- Global and Web Platform APIs such as `Promise`, `fetch`, `Map`, `WebAssembly`, observers, encoding, streams, Web Components, graphics, real-time communication, storage, and Web Workers
+- Built-in helper methods including `Object.assign`, `Object.fromEntries`, immutable Array methods, modern String methods, Number and Math helpers, Promise helpers, memory-management APIs, and `Intl`
 
 Syntax checks are evaluated dynamically so that an older browser can still load the evaluator even when it does not support the feature being tested.
 
