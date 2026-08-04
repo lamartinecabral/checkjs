@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JavaScript Feature Compatibility Evaluator</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23111418'/%3E%3Ctext x='50%25' y='58%25' text-anchor='middle' font-size='34' font-family='monospace' fill='%23f3f4ef'%3EJS%3C/text%3E%3C/svg%3E">
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23111418'/%3E%3Ctext x='50%25' y='58%25' text-anchor='middle' font-size='34' font-family='monospace' fill='%23f3f4ef'%3EJS%3C/text%3E%3C/svg%3E"
+    />
     <style>
       /* Clean, modern CSS styling using native CSS features compatible back to IE9+ */
       * {
@@ -319,7 +322,7 @@
           var worker;
           try {
             worker = new Worker("worker.js", { type: "module" });
-          } catch(_) {
+          } catch (_) {
             worker = new Worker("worker.js");
           }
           window.evaluateWorkerFeature = function (test, callback) {
@@ -382,36 +385,6 @@
               code: "var a = [1]; var b = [...a]; function f(...args){}",
             },
             {
-              name: "Async / Await Syntax",
-              type: "syntax",
-              code: "async function test() { await Promise.resolve(); }",
-            },
-            {
-              name: "Optional Chaining (?.)",
-              type: "syntax",
-              code: "var obj = {}; var val = obj?.a?.b;",
-            },
-            {
-              name: "Nullish Coalescing (??)",
-              type: "syntax",
-              code: "var val = null ?? 'default';",
-            },
-            {
-              name: "Private Class Fields (#field)",
-              type: "syntax",
-              code: "class Foo { #bar = 42; getBar() { return this.#bar; } }",
-            },
-            {
-              name: "Logical Assignment Operators (||=, &&=, ??=)",
-              type: "syntax",
-              code: "let a = 0; a ||= 1; let b = 1; b &&= 2;",
-            },
-            {
-              name: "Object Rest / Spread Properties",
-              type: "syntax",
-              code: "var source = {a: 1, b: 2}; var {a, ...rest} = source; var copy = {...rest};",
-            },
-            {
               name: "for...of Loops",
               type: "syntax",
               code: "for (var value of [1]) { break; }",
@@ -422,19 +395,19 @@
               code: "function* iterator() { yield 1; }",
             },
             {
+              name: "Async / Await Syntax",
+              type: "syntax",
+              code: "async function test() { await Promise.resolve(); }",
+            },
+            {
               name: "Async Generators",
               type: "syntax",
               code: "async function* iterator() { yield 1; }",
             },
             {
-              name: "Numeric Separators",
+              name: "Object Rest / Spread Properties",
               type: "syntax",
-              code: "var total = 1_000_000;",
-            },
-            {
-              name: "Class Static Initialization Blocks",
-              type: "syntax",
-              code: "class Counter { static { this.value = 1; } }",
+              code: "var source = {a: 1, b: 2}; var {a, ...rest} = source; var copy = {...rest};",
             },
             {
               name: "RegExp Named Capture Groups",
@@ -467,6 +440,36 @@
               type: "syntax",
               env: "worker",
               code: "import('').catch(()=>{});",
+            },
+            {
+              name: "Optional Chaining (?.)",
+              type: "syntax",
+              code: "var obj = {}; var val = obj?.a?.b;",
+            },
+            {
+              name: "Nullish Coalescing (??)",
+              type: "syntax",
+              code: "var val = null ?? 'default';",
+            },
+            {
+              name: "Logical Assignment Operators (||=, &&=, ??=)",
+              type: "syntax",
+              code: "let a = 0; a ||= 1; let b = 1; b &&= 2;",
+            },
+            {
+              name: "Numeric Separators",
+              type: "syntax",
+              code: "var total = 1_000_000;",
+            },
+            {
+              name: "Private Class Fields (#field)",
+              type: "syntax",
+              code: "class Foo { #bar = 42; getBar() { return this.#bar; } }",
+            },
+            {
+              name: "Class Static Initialization Blocks",
+              type: "syntax",
+              code: "class Counter { static { this.value = 1; } }",
             },
           ],
         },
@@ -518,16 +521,6 @@
               },
             },
             {
-              name: "Temporal",
-              type: "api",
-              check: function () {
-                return (
-                  typeof Temporal !== "undefined" &&
-                  typeof Temporal.PlainDate === "function"
-                );
-              },
-            },
-            {
               name: "WebAssembly",
               type: "api",
               check: function () {
@@ -546,13 +539,6 @@
               type: "api",
               check: function () {
                 return typeof ResizeObserver !== "undefined";
-              },
-            },
-            {
-              name: "structuredClone",
-              type: "api",
-              check: function () {
-                return typeof structuredClone !== "undefined";
               },
             },
             {
@@ -683,16 +669,6 @@
               },
             },
             {
-              name: "Compression & Decompression Streams",
-              type: "api",
-              check: function () {
-                return (
-                  typeof CompressionStream !== "undefined" &&
-                  typeof DecompressionStream !== "undefined"
-                );
-              },
-            },
-            {
               name: "Web Components",
               type: "api",
               check: function () {
@@ -711,13 +687,6 @@
                   Element.prototype &&
                   typeof Element.prototype.attachShadow === "function"
                 );
-              },
-            },
-            {
-              name: "HTML Dialog Element",
-              type: "api",
-              check: function () {
-                return typeof HTMLDialogElement !== "undefined";
               },
             },
             {
@@ -766,6 +735,40 @@
                 return typeof caches !== "undefined";
               },
             },
+            {
+              name: "structuredClone",
+              type: "api",
+              check: function () {
+                return typeof structuredClone !== "undefined";
+              },
+            },
+            {
+              name: "HTML Dialog Element",
+              type: "api",
+              check: function () {
+                return typeof HTMLDialogElement !== "undefined";
+              },
+            },
+            {
+              name: "Compression & Decompression Streams",
+              type: "api",
+              check: function () {
+                return (
+                  typeof CompressionStream !== "undefined" &&
+                  typeof DecompressionStream !== "undefined"
+                );
+              },
+            },
+            {
+              name: "Temporal",
+              type: "api",
+              check: function () {
+                return (
+                  typeof Temporal !== "undefined" &&
+                  typeof Temporal.PlainDate === "function"
+                );
+              },
+            },
           ],
         },
         {
@@ -793,13 +796,6 @@
               type: "api",
               check: function () {
                 return typeof Object.fromEntries === "function";
-              },
-            },
-            {
-              name: "Object.hasOwn",
-              type: "api",
-              check: function () {
-                return typeof Object.hasOwn === "function";
               },
             },
             {
@@ -850,26 +846,6 @@
                   typeof Array.prototype.findLast === "function" &&
                   typeof Array.prototype.findLastIndex === "function"
                 );
-              },
-            },
-            {
-              name: "Array.prototype.toReversed / toSorted / toSpliced / with",
-              type: "api",
-              check: function () {
-                return (
-                  Array.prototype &&
-                  typeof Array.prototype.toReversed === "function" &&
-                  typeof Array.prototype.toSorted === "function" &&
-                  typeof Array.prototype.toSpliced === "function" &&
-                  typeof Array.prototype.with === "function"
-                );
-              },
-            },
-            {
-              name: "Array.fromAsync",
-              type: "api",
-              check: function () {
-                return typeof Array.fromAsync === "function";
               },
             },
             {
@@ -968,16 +944,6 @@
               },
             },
             {
-              name: "Promise.withResolvers",
-              type: "api",
-              check: function () {
-                return (
-                  typeof Promise !== "undefined" &&
-                  typeof Promise.withResolvers === "function"
-                );
-              },
-            },
-            {
               name: "WeakRef & FinalizationRegistry",
               type: "api",
               check: function () {
@@ -1001,6 +967,43 @@
                 return (
                   typeof Intl !== "undefined" &&
                   typeof Intl.DateTimeFormat === "function"
+                );
+              },
+            },
+            {
+              name: "Object.hasOwn",
+              type: "api",
+              check: function () {
+                return typeof Object.hasOwn === "function";
+              },
+            },
+            {
+              name: "Array.prototype.toReversed / toSorted / toSpliced / with",
+              type: "api",
+              check: function () {
+                return (
+                  Array.prototype &&
+                  typeof Array.prototype.toReversed === "function" &&
+                  typeof Array.prototype.toSorted === "function" &&
+                  typeof Array.prototype.toSpliced === "function" &&
+                  typeof Array.prototype.with === "function"
+                );
+              },
+            },
+            {
+              name: "Array.fromAsync",
+              type: "api",
+              check: function () {
+                return typeof Array.fromAsync === "function";
+              },
+            },
+            {
+              name: "Promise.withResolvers",
+              type: "api",
+              check: function () {
+                return (
+                  typeof Promise !== "undefined" &&
+                  typeof Promise.withResolvers === "function"
                 );
               },
             },
@@ -1186,7 +1189,6 @@
 
       // Initial load
       renderApp();
-
     </script>
   </body>
 </html>
