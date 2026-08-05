@@ -1,14 +1,12 @@
 // Evaluator engine runner for ES Modules
 function evaluateEsmFeature(test, callback) {
   if (test.type === "syntax") {
-    return moduleEval(test.code, callback);
-  } else if (test.type === "api") {
-    return moduleEval("(" + test.check.toString() + ")()", callback);
+    return moduleEval(test.code, "syntax", callback);
   }
   return callback(false);
 }
 
-function moduleEval(jsCode, callback) {
+function moduleEval(jsCode, testType, callback) {
   try {
     var blob = new Blob([jsCode], { type: "text/javascript" });
     var blobUrl = URL.createObjectURL(blob);
@@ -18,7 +16,16 @@ function moduleEval(jsCode, callback) {
 
     var failed = false;
     var errorListener = function (e) {
-      failed = true;
+      if (testType === "syntax") {
+        if (
+          e instanceof SyntaxError ||
+          e.message.indexOf("SyntaxError") !== -1 ||
+          e.name === "SyntaxError"
+        )
+          failed = true;
+      } else {
+        failed = true;
+      }
       e.preventDefault();
     };
     window.addEventListener("error", errorListener);

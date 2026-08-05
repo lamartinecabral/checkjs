@@ -310,40 +310,17 @@
     <script type="module" src="module.js"></script>
 
     <script>
-      (function () {
-        if (!window.evaluateEsmFeature) {
-          window.evaluateEsmFeature = function (test, callback) {
-            // Fallback for environments that don't support ES Modules
-            callback(false);
-          };
-        }
-
-        if (typeof Worker !== "undefined") {
-          var worker;
-          try {
-            worker = new Worker("worker.js", { type: "module" });
-          } catch (_) {
-            worker = new Worker("worker.js");
-          }
-          window.evaluateWorkerFeature = function (test, callback) {
-            worker.onmessage = function (e) {
-              callback(e.data.result);
-            };
-            worker.postMessage(test);
-          };
-        } else {
-          window.evaluateWorkerFeature = function (test, callback) {
-            callback(false);
-          };
-        }
-      })();
-    </script>
-
-    <script>
       /*
        * NOTE: This script is deliberately written in pure ES3/ES5 JavaScript (var, standard functions)
        * so that old engines can execute this code without throwing syntax errors.
        */
+
+      if (!window.evaluateEsmFeature) {
+        window.evaluateEsmFeature = function (test, callback) {
+          // Fallback for environments that don't support ES Modules
+          callback(false);
+        };
+      }
 
       var currentFilter = "all";
 
@@ -352,6 +329,12 @@
         {
           name: "Language Syntax & Grammar (Evaluated via eval)",
           tests: [
+            {
+              name: "ES Modules",
+              type: "syntax",
+              env: "module",
+              code: "export {};",
+            },
             { name: "Arrow Functions", type: "syntax", code: "() => {}" },
             {
               name: "let / const Block Scope",
@@ -400,6 +383,12 @@
               code: "async function test() { await Promise.resolve(); }",
             },
             {
+              name: "import.meta",
+              type: "syntax",
+              env: "module",
+              code: "export const url = import.meta.url;",
+            },
+            {
               name: "Async Generators",
               type: "syntax",
               code: "async function* iterator() { yield 1; }",
@@ -430,10 +419,10 @@
               code: "var match = /a.b/s.test('a\\nb');",
             },
             {
-              name: "import.meta",
+              name: "Module Namespace Object",
               type: "syntax",
               env: "module",
-              code: "import.meta",
+              code: 'import * as name from "module";',
             },
             {
               name: "Top-level await",
@@ -485,6 +474,12 @@
               name: "Class Static Initialization Blocks",
               type: "syntax",
               code: "class Counter { static { this.value = 1; } }",
+            },
+            {
+              name: "JSON import",
+              type: "syntax",
+              env: "module",
+              code: 'import data from "./data.json" with { type: "json" };',
             },
           ],
         },
@@ -1223,6 +1218,7 @@
                     "</span></div>";
 
                   grid.appendChild(item);
+                  setStatValues(totalCount, passCount, failCount);
                   next();
                 });
               },
@@ -1234,12 +1230,16 @@
             );
           },
           function () {
-            // Update Header Metrics
-            document.getElementById("stat-total").innerText = totalCount;
-            document.getElementById("stat-pass").innerText = passCount;
-            document.getElementById("stat-fail").innerText = failCount;
+            setStatValues(totalCount, passCount, failCount);
           },
         );
+      }
+
+      function setStatValues(total, pass, fail) {
+        // Update Header Metrics
+        document.getElementById("stat-total").innerText = total;
+        document.getElementById("stat-pass").innerText = pass;
+        document.getElementById("stat-fail").innerText = fail;
       }
 
       // Evaluator engine runner
@@ -1248,10 +1248,6 @@
           if (test.env === "module") {
             // If the test is marked for ES Modules, use the module evaluator
             return window.evaluateEsmFeature(test, callback);
-          }
-          if (test.env === "worker") {
-            // If the test is marked for Web Workers, use the worker evaluator
-            return window.evaluateWorkerFeature(test, callback);
           }
           if (test.type === "syntax") {
             try {
