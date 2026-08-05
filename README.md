@@ -38,6 +38,10 @@ The evaluator executes entered code with `eval()`. Use it only with code you tru
 
 ```text
 .
-├── index.html  # Application markup, styles, feature checks, and UI logic
-└── README.md   # Project documentation
+├── index.html     # Application markup
+├── index.js       # Main application logic, UI rendering, stats, and evaluation runner
+├── features.js    # Test categories and feature declarations (syntax, API, and module checks)
+├── module.js      # ES module dynamic evaluation runner using Blob URLs
+├── package.json   # NPM scripts
+└── README.md      # Project documentation
 ```
