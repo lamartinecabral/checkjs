@@ -5,13 +5,6 @@
  * so that old engines can execute this code without throwing syntax errors.
  */
 
-if (!window.evaluateEsmFeature) {
-  window.evaluateEsmFeature = function (test, callback) {
-    // Fallback for environments that don't support ES Modules
-    callback(false);
-  };
-}
-
 var currentFilter = "all";
 
 // Run custom syntax input
@@ -120,7 +113,7 @@ function evaluateFeature(test, callback) {
   try {
     if (test.env === "module") {
       // If the test is marked for ES Modules, use the module evaluator
-      return window.evaluateEsmFeature(test, callback);
+      return moduleEval(test.code, test.type, callback);
     }
     if (test.type === "syntax") {
       try {
@@ -140,6 +133,52 @@ function evaluateFeature(test, callback) {
     return callback(false);
   } catch (e) {
     return callback(false);
+  }
+}
+
+function moduleEval(jsCode, testType, callback) {
+  try {
+    var blob = new Blob([jsCode], { type: "text/javascript" });
+    var blobUrl = URL.createObjectURL(blob);
+    var script = document.createElement("script");
+    script.src = blobUrl;
+    script.type = "module";
+
+    var failed = false;
+    var errorListener = function (e) {
+      if (testType === "syntax") {
+        if (
+          e instanceof SyntaxError ||
+          e.message.indexOf("SyntaxError") !== -1 ||
+          e.name === "SyntaxError"
+        )
+          failed = true;
+      } else {
+        failed = true;
+      }
+      e.preventDefault();
+    };
+    window.addEventListener("error", errorListener);
+
+    document.body.appendChild(script);
+
+    script.onload = function (ev) {
+      window.removeEventListener("error", errorListener);
+      script.remove();
+      URL.revokeObjectURL(blobUrl);
+
+      if (!failed) callback(true);
+      else callback(false);
+    };
+
+    script.onerror = function (ev) {
+      window.removeEventListener("error", errorListener);
+      script.remove();
+      URL.revokeObjectURL(blobUrl);
+      callback(false);
+    };
+  } catch (e) {
+    callback(false);
   }
 }
 
