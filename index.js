@@ -125,7 +125,22 @@ function evaluateFeature(test, callback) {
       }
     } else if (test.type === "api") {
       try {
-        return callback(!!test.check());
+        var result = test.check();
+
+        // API checks may be asynchronous (for example, WebGPU adapter
+        // requests). Resolve promise-like results before reporting status.
+        if (result && typeof result.then === "function") {
+          return result.then(
+            function (isSupported) {
+              callback(!!isSupported);
+            },
+            function () {
+              callback(false);
+            },
+          );
+        }
+
+        return callback(!!result);
       } catch (e) {
         return callback(false);
       }

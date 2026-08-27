@@ -531,6 +531,23 @@ var featureCategories = [
         },
       },
       {
+        name: "WebGPU Adapter",
+        type: "api",
+        check: function () {
+          if (
+            typeof navigator === "undefined" ||
+            typeof navigator.gpu === "undefined" ||
+            typeof navigator.gpu.requestAdapter !== "function"
+          ) {
+            return false;
+          }
+
+          return navigator.gpu.requestAdapter().then(function (adapter) {
+            return !!adapter;
+          });
+        },
+      },
+      {
         name: "Secure Context",
         type: "api",
         check: function () {
