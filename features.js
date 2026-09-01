@@ -181,6 +181,66 @@ var featureCategories = [
         },
       },
       {
+        name: "Prompt API (LanguageModel)",
+        type: "api",
+        check: function () {
+          return (
+            typeof LanguageModel !== "undefined" &&
+            typeof LanguageModel.availability === "function" &&
+            typeof LanguageModel.create === "function"
+          );
+        },
+      },
+      {
+        name: "Prompt API Availability",
+        type: "api",
+        check: function () {
+          if (
+            typeof LanguageModel === "undefined" ||
+            typeof LanguageModel.availability !== "function"
+          ) {
+            return false;
+          }
+
+          // availability() does not create a session or download a model.
+          return LanguageModel.availability().then(function (availability) {
+            return availability !== "unavailable";
+          });
+        },
+      },
+      {
+        name: "Prompt API Session Methods",
+        type: "api",
+        check: function () {
+          var prototype =
+            typeof LanguageModel !== "undefined" && LanguageModel.prototype;
+
+          return !!(
+            prototype &&
+            typeof prototype.append === "function" &&
+            typeof prototype.clone === "function" &&
+            typeof prototype.destroy === "function" &&
+            typeof prototype.measureContextUsage === "function" &&
+            typeof prototype.prompt === "function" &&
+            typeof prototype.promptStreaming === "function"
+          );
+        },
+      },
+      {
+        name: "Prompt API Context Properties",
+        type: "api",
+        check: function () {
+          var prototype =
+            typeof LanguageModel !== "undefined" && LanguageModel.prototype;
+
+          return !!(
+            prototype &&
+            "contextUsage" in prototype &&
+            "contextWindow" in prototype
+          );
+        },
+      },
+      {
         name: "Map & Set",
         type: "api",
         check: function () {
