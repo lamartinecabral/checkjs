@@ -1,4 +1,4 @@
-/** @typedef {{name: string, type: 'syntax', env?: 'module', code: string} | {name: string, type: 'api', check: function(): boolean}} FeatureDeclaration */
+/** @typedef {{name: string, type: 'syntax', env?: 'module', code: string} | {name: string, type: 'api', check: function(): (boolean|Promise<boolean>)}} FeatureDeclaration */
 /** @typedef {{name: string, tests: FeatureDeclaration[]}} FeatureCategory */
 
 /**
@@ -512,6 +512,57 @@ var featureCategories = [
         type: "api",
         check: function () {
           return typeof indexedDB !== "undefined";
+        },
+      },
+      {
+        name: "Origin Private File System (OPFS)",
+        type: "api",
+        check: function () {
+          return (
+            typeof navigator !== "undefined" &&
+            typeof navigator.storage !== "undefined" &&
+            typeof navigator.storage.getDirectory === "function"
+          );
+        },
+      },
+      {
+        name: "OPFS Root Directory",
+        type: "api",
+        check: function () {
+          if (
+            typeof navigator === "undefined" ||
+            typeof navigator.storage === "undefined" ||
+            typeof navigator.storage.getDirectory !== "function"
+          ) {
+            return false;
+          }
+
+          // Calling getDirectory() confirms that the browser can open the
+          // origin-private bucket in this context without creating an entry.
+          return navigator.storage.getDirectory().then(function (directory) {
+            return !!(
+              directory &&
+              typeof directory.getFileHandle === "function" &&
+              typeof directory.getDirectoryHandle === "function" &&
+              typeof directory.removeEntry === "function" &&
+              typeof directory.resolve === "function"
+            );
+          });
+        },
+      },
+      {
+        name: "OPFS File Handle Operations",
+        type: "api",
+        check: function () {
+          var prototype =
+            typeof FileSystemFileHandle !== "undefined" &&
+            FileSystemFileHandle.prototype;
+
+          return !!(
+            prototype &&
+            typeof prototype.getFile === "function" &&
+            typeof prototype.createWritable === "function"
+          );
         },
       },
       {
